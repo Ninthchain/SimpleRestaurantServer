@@ -15,22 +15,31 @@ public class Server extends HttpServer {
 
     private boolean isRunning;
 
+    private void init()
+    {
+        serverCore = null;
+        clientSocket = null;
+        databaseSocket = null;
+    }
     private boolean isAllServicesAreReachable() throws IOException, ServerNotActiveException {
-        if(!this.isRunning)
-            throw new ServerNotActiveException();
 
         if(databaseSocket == null)
             return this.isClientReachable();
         return this.isClientReachable() && this.isDatabaseReachable();
     }
     public Server(InetSocketAddress clientSocket) throws IOException {
+
+        this.init();
+
         InetSocketAddress socket = new InetSocketAddress("localhost", 2501);
-        this.databaseSocket = null;
         this.clientSocket = clientSocket;
         this.serverCore = HttpServer.create(socket, 0);
     }
 
     public Server(InetSocketAddress clientSocket, InetSocketAddress databaseSocket) throws IOException {
+
+        this.init();
+
         InetSocketAddress socket = new InetSocketAddress("localhost", 2501);
         this.databaseSocket = databaseSocket;
         this.clientSocket = clientSocket;
