@@ -17,9 +17,18 @@ public class Server extends HttpServer {
             return this.isClientReachable();
         return this.isClientReachable() && this.isDatabaseReachable();
     }
-    public Server() throws IOException {
+    public Server(InetSocketAddress clientSocket) throws IOException {
         InetSocketAddress socket = new InetSocketAddress("localhost", 2501);
-        serverCore = HttpServer.create(socket, 0);
+        this.databaseSocket = null;
+        this.clientSocket = clientSocket;
+        this.serverCore = HttpServer.create(socket, 0);
+    }
+
+    public Server(InetSocketAddress clientSocket, InetSocketAddress databaseSocket) throws IOException {
+        InetSocketAddress socket = new InetSocketAddress("localhost", 2501);
+        this.databaseSocket = databaseSocket;
+        this.clientSocket = clientSocket;
+        this.serverCore = HttpServer.create(socket, 0);
     }
 
     @Override
