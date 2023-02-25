@@ -4,15 +4,21 @@ import java.io.Console;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.rmi.server.ServerNotActiveException;
 import java.util.concurrent.Executor;
 
 public class Server extends HttpServer {
     private HttpServer serverCore;
+
     private InetSocketAddress clientSocket;
     private InetSocketAddress databaseSocket;
 
-    private boolean isAllServicesAreReachable() throws IOException
-    {
+    private boolean isRunning;
+
+    private boolean isAllServicesAreReachable() throws IOException, ServerNotActiveException {
+        if(!this.isRunning)
+            throw new ServerNotActiveException();
+
         if(databaseSocket == null)
             return this.isClientReachable();
         return this.isClientReachable() && this.isDatabaseReachable();
@@ -39,6 +45,8 @@ public class Server extends HttpServer {
     @Override
     public void start() {
         serverCore.start();
+
+        this.isRunning = true;
     }
 
     @Override
@@ -54,6 +62,7 @@ public class Server extends HttpServer {
     @Override
     public void stop(int delay) {
         serverCore.stop(delay);
+        this.isRunning = false;
     }
 
     @Override
@@ -76,19 +85,26 @@ public class Server extends HttpServer {
         serverCore.removeContext(context);
     }
 
-    public boolean isDatabaseReachable() throws IOException, NullPointerException {
+    public boolean isDatabaseReachable() throws IOException, NullPointerException, ServerNotActiveException {
         if(databaseSocket == null)
             throw new NullPointerException();
         if(!databaseSocket.getAddress().isReachable(100))
             throw new ConnectException();
+
         return true;
     }
 
-    public boolean isClientReachable() throws IOException
-    {
-        if(!clientSocket.getAddress().isReachable(100))
+    public boolean isClientReachable() throws IOException, ServerNotActiveException {
+
+        if(!clientSocket.getAddress().isReachable(100)) {
             throw new ConnectException();
+        }
         return true;
+    }
+
+    public boolean isServerRunning()
+    {
+        return this.isRunning;
     }
 
     @Override
