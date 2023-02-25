@@ -20,5 +20,15 @@ public class Main {
 
         System.out.println("Starting server...");
         server.start();
+
+        if(server.isServerRunning())
+            try {
+                if(server.isClientReachable())
+                    System.out.println("Client-side is online!");
+            }
+            catch (Exception ex)
+            {
+                System.out.println(ex.getMessage());
+            }
     }
 }
